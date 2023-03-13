@@ -1,0 +1,68 @@
+import struct
+import socket
+
+frame = 1  # 4 bytes
+
+header = b"JN"  # b literal in front of string literal means , the string is in byte format
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_src = ('192.168.7.1', 51000)  # Replace with the IP address and port number of the sender
+
+sock.bind(udp_src)
+# Set the destination address and port
+udp_host = '192.168.7.2'  # Replace with the IP address of the receiver
+
+udp_port = 51001  # Replace with the port number of the receiver
+#udp_port = 51001  # Replace with the port number of the receiver
+udp_addr = (udp_host, udp_port)
+while True:
+    while frame < 10:
+        # First object
+
+        numObj = 1  # 1 byte
+        Obj1ID = 1  # 1 byte
+        x = 13658      # 1 byte
+        y = 65535
+        #xy = [93, 22]
+
+        Frame = struct.pack('I', frame)  # unsigned integer 4 byte
+        NumObj = struct.pack('B', numObj)  # unsigned character 1 byte
+        ID = struct.pack('B', Obj1ID)  # unsigned character 1 byte
+        x = struct.pack('H', x)                  # unsigned character 1 byte
+        y = struct.pack('H', y)                   # unsigned character 1 byte
+        #xy = struct.pack('BB', *xy)
+        obj_msg = Frame + NumObj + ID + x + y
+        #obj_msg = Frame + NumObj + ID + xy
+        sock.sendto(obj_msg, udp_addr)
+
+        # Send the packed data over UDP
+
+        with open('packed_data.bin', 'wb') as f:
+            f.write(obj_msg)
+
+        # with open('packed_data.bin', 'rb') as f:
+        # data = f.read()
+
+        Frame = struct.unpack('I', obj_msg[0:4])[0]
+        NumObj = struct.unpack('B', obj_msg[4:5])[0]
+        ID = struct.unpack('B', obj_msg[5:6])[0]
+        x = struct.unpack('H', obj_msg[6:8])[0]
+        y = struct.unpack('H', obj_msg[8:10])[0]
+        #xy = struct.unpack('BB', obj_msg[6:8])
+
+        # Structure of the data
+        print("Structure of data")
+        print("Frame number")
+        print("Number of Object")
+        print("ID of Object")
+        print("x co-ordinate")
+        print("y co-ordinate")
+        print(Frame)
+        print(NumObj)
+        print(ID)
+        #print(xy)
+        print(x)
+        print(y)
+
+        frame += 1
+
